@@ -253,11 +253,11 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	object3d_2->SetModel(model_2);
 	object3d_3->SetModel(model_2);
 
-	object3d_2->SetScale({ 20.0f, 20.0f, 20.0f });
+	object3d_2->SetScale({ 10.0f, 10.0f, 10.0f });
 	object3d_3->SetScale({ 30.0f, 30.0f, 30.0f });
 
 
-	object3d_2->SetPosition({ -5, 0, -5 });
+	object3d_2->SetPosition({ -5, 60, -5 });
 	object3d_3->SetPosition({ +5, 0, +5 });
 
 	// スプライト共通テクスチャ読み込み
@@ -301,6 +301,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 
 	int counter = 0; // アニメーションの経過時間カウンター
 
+	int timer = 0;
+	float gravity = 0.1f;
+	float speed = 0.25f;
+
 	while (true)  // ゲームループ
 	{
 		//windowsのメッセージ処理
@@ -316,11 +320,11 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 
 		float clearColor[] = { 0.1f,0.25f, 0.5f,0.0f }; // 青っぽい色
 
-		if (input->PushKey(DIK_SPACE))     // スペースキーが押されていたら
-		{
-			// 画面クリアカラーの数値を書き換える
-			clearColor[1] = 1.0f;
-		}
+		//if (input->PushKey(DIK_SPACE))     // スペースキーが押されていたら
+		//{
+		//	// 画面クリアカラーの数値を書き換える
+		//	clearColor[1] = 1.0f;
+		//}
 
 		// 座標操作
 		if (input->PushKey(DIK_UP) || input->PushKey(DIK_DOWN) || input->PushKey(DIK_RIGHT) || input->PushKey(DIK_LEFT))
@@ -332,6 +336,17 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 		{
 
 		}
+
+		if (input->PushKey(DIK_SPACE)) {
+			object3d_2->SetPosition({ -5, 60, -5 });
+			timer = 0;
+		}
+
+		timer++;
+
+		gravity = timer * speed;
+
+		object3d_2->SetPosition({ 0, object3d_2->GetPosition().y - gravity, 0 });
 
 		debugText->Print("Hello,DirectX!!", 200, 100);
 		debugText->Print("Nihon Kogakuin", 200, 200, 2.0f);
@@ -357,9 +372,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 		Object3d::PreDraw(dxCommon->GetCmdList());
 
 		//3Dオブジェクトの描画
-		object3d_1->Draw();
+		//object3d_1->Draw();
 		object3d_2->Draw();
-		object3d_3->Draw();
+		//object3d_3->Draw();
 
 		//3Dオブジェクトの描画後処理
 		Object3d::PostDraw();
@@ -367,12 +382,12 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 		// スプライト共通コマンド
 		spriteCommon->PreDraw();
 
-		for (auto& sprite : sprites) {
+	/*	for (auto& sprite : sprites) {
 			sprite->Draw();
-		}
+		}*/
 
 		// デバッグテキスト描画
-		debugText->DrawAll();
+		/*debugText->DrawAll();*/
 
 		// ４．描画コマンドここまで
 
