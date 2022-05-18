@@ -14,6 +14,7 @@
 #include "DebugText.h"
 
 using namespace Microsoft::WRL;
+using namespace DirectX;
 
 // チャンクヘッダ
 struct ChunkHeader
@@ -263,27 +264,36 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	// スプライト共通テクスチャ読み込み
 	spriteCommon->LoadTexture(0, L"Resources/texture.png");
 	spriteCommon->LoadTexture(1, L"Resources/house.png");
+	spriteCommon->LoadTexture(3, L"Resources/BOLL.png");
 
 	std::vector<Sprite*> sprites;
 
 	// スプライトの生成
-	for (int i = 0; i < 20; i++)
-	{
-		int texNumber = 0;
-		 Sprite* sprite = Sprite::Create(spriteCommon, texNumber, { 0,0 }, false, false);
+	//for (int i = 0; i < 20; i++)
+	//{
+	int texNumber = 3;
+	Sprite* sprite = Sprite::Create(spriteCommon, texNumber, { 0,0 }, false, false);
+	Sprite* sprite_2 = Sprite::Create(spriteCommon, texNumber, { 0,0 }, false, false);
 
-		// スプライトの座標変更
-		sprite->SetPosition({ (float)(rand() % 1280), (float)(rand() % 720), 0 });
-		sprite->SetRotation((float)(rand() % 360));
-		sprite->SetSize({ (float)(rand() % 400), (float)(rand() % 400) });
-		//sprites[i].isInvisible = true;
-		//sprites[i].size.x = 400.0f;
-		//sprites[i].size.y = 100.0f;
-		// 頂点バッファに反映
-		sprite->TransferVertexBuffer();
+	// スプライトの座標変更
+	//sprite->SetPosition({ (float)(rand() % 1280), (float)(rand() % 720), 0 });
+	//sprite->SetRotation((float)(rand() % 360));
+	//sprite->SetSize({ (float)(rand() % 400), (float)(rand() % 400) });
+	sprite->SetPosition({ 300, 300, 0 });
+	sprite->SetSize({ 100, 100 });
 
-		sprites.push_back(sprite);
-	}
+	sprite_2->SetPosition({ 800, 300, 0 });
+	sprite_2->SetSize({ 50, 50 });
+	//sprites[i].isInvisible = true;
+	//sprites[i].size.x = 400.0f;
+	//sprites[i].size.y = 100.0f;
+	// 頂点バッファに反映
+	sprite->TransferVertexBuffer();
+	sprite_2->TransferVertexBuffer();
+
+	sprites.push_back(sprite);
+	sprites.push_back(sprite_2);
+	//}
 
 	// デバッグテキスト
 	DebugText* debugText = nullptr;
@@ -303,7 +313,12 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 
 	int timer = 0;
 	float gravity = 0.1f;
-	float speed = 0.25f;
+	float speed = 10;
+	float radius = 5;
+	float radius_2 = 10;
+
+	XMFLOAT3 speed2 = { 0, 0, 0 };
+	XMFLOAT3 speed3 = { 0, 0, 0 };
 
 	while (true)  // ゲームループ
 	{
@@ -329,7 +344,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 		// 座標操作
 		if (input->PushKey(DIK_UP) || input->PushKey(DIK_DOWN) || input->PushKey(DIK_RIGHT) || input->PushKey(DIK_LEFT))
 		{
-			
+
 		}
 
 		if (input->PushKey(DIK_D) || input->PushKey(DIK_A))
@@ -338,15 +353,32 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 		}
 
 		if (input->PushKey(DIK_SPACE)) {
-			object3d_2->SetPosition({ -5, 60, -5 });
-			timer = 0;
+			/*object3d_2->SetPosition({ -5, 60, -5 });*/
+			sprite->SetPosition({ 300, 300, 0 });
+			sprite_2->SetPosition({ 600, 300, 0 });
+			speed = 10;
+			//timer = 0;
 		}
 
-		timer++;
+		//timer++;
 
-		gravity = timer * speed;
+		/*gravity = timer * speed;
 
-		object3d_2->SetPosition({ 0, object3d_2->GetPosition().y - gravity, 0 });
+		object3d_2->SetPosition({ 0, object3d_2->GetPosition().y - gravity, 0 });*/
+
+		speed2.x += speed;
+		speed3.x -= speed;
+
+		float d = (600 + speed3.x) - (300 + speed2.x);
+		if (fabs(d) <= radius + radius_2) {
+			speed *= -1;
+		}
+
+
+		sprite->SetPosition({300 + speed2.x, 300, 0});
+		sprite_2->SetPosition({ 600 + speed3.x, 300, 0 });
+
+
 
 		debugText->Print("Hello,DirectX!!", 200, 100);
 		debugText->Print("Nihon Kogakuin", 200, 200, 2.0f);
@@ -357,10 +389,11 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 		object3d_3->Update();
 
 		//スプライト更新
-		for (auto& sprite : sprites) {
+		//for (auto& sprite : sprites) {
 			sprite->Update();
-		}
-	
+			sprite_2->Update();
+		//}
+
 		// DirectX毎フレーム処理　ここまで
 #pragma endregion DirectX毎フレーム処理
 
@@ -373,7 +406,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 
 		//3Dオブジェクトの描画
 		//object3d_1->Draw();
-		object3d_2->Draw();
+		//object3d_2->Draw();
 		//object3d_3->Draw();
 
 		//3Dオブジェクトの描画後処理
@@ -382,9 +415,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 		// スプライト共通コマンド
 		spriteCommon->PreDraw();
 
-	/*	for (auto& sprite : sprites) {
+		//for (auto& sprite : sprites) {
 			sprite->Draw();
-		}*/
+			sprite_2->Draw();
+		//}
 
 		// デバッグテキスト描画
 		/*debugText->DrawAll();*/
@@ -399,9 +433,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	delete debugText;
 
 	// スプライト解放
-	for (auto& sprite : sprites) {
+	//for (auto& sprite : sprites) {
 		delete sprite;
-	}
+	//}
 	sprites.clear();
 
 	// スプライト共通部解放
